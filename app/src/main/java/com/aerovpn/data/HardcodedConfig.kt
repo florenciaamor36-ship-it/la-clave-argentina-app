@@ -8,15 +8,15 @@ import com.aerovpn.service.protocol.SSHConfig
  */
 object HardcodedConfig {
     
-    // Server 1: Cloudfront Rotate
+    // Server 1: Cloudfront Complex Rotate (Based on screenshot)
     val server1 = SSHConfig(
-        name = "La Clave - Cloudfront",
+        name = "La Clave - Cloudfront Rotate",
         serverAddress = "emailmarketing.personal.com.ar",
         serverPort = 80,
         username = "GUSTY",
         password = "12345",
-        payload = "CONNECT [host_port] [protocol][crlf]Host: d279v0k7n2z8z8.cloudfront.net[crlf]X-Online-Host: d279v0k7n2z8z8.cloudfront.net[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Referer: [host][crlf][crlf]",
-        proxyHost = "128.254.190.146", // Assuming VPS as proxy for payload handling
+        payload = "COPY / HTTP/1.3[crlf]Host: [host][crlf][crlf][lf][lf][instant_split][lf][lf]X / HTTP/1.2[crlf]Host: [host][crlf][lf][crlf]GET / app100123 HTTP/1.1[crlf]Host: [rotate=cloudfront-03.cdn-hub.org;d9l7mhbnyv6wq.cloudfront.net;d2iowtuv61tbhu.cloudfront.net][crlf]Upgrade:websocket[crlf]Connection: Upgrade[crlf][crlf]",
+        proxyHost = "128.254.190.146",
         proxyPort = 80
     )
 
