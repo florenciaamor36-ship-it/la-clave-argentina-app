@@ -42,6 +42,9 @@ fun NavigationGraph(
                 onDisconnectClick = { /* Handle disconnect */ },
                 onServerSelectClick = {
                     navController.navigate(NavigationItem.Servers.route)
+                },
+                onHotspotClick = {
+                    navController.navigate("hotspot")
                 }
             )
         }
