@@ -64,7 +64,11 @@ fun NavigationGraph(
         composable(NavigationItem.Tools.route) {
             ToolsScreen(
                 onToolClick = { tool ->
-                    // Navigate to tool detail or open tool
+                    if (tool.id == "vpn_hotspot") {
+                        navController.navigate("hotspot")
+                    } else {
+                        navController.navigate("tool/${tool.id}")
+                    }
                 },
                 onBackClick = {
                     navController.popBackStack()
@@ -91,6 +95,15 @@ fun NavigationGraph(
                 onCreateClick = {
                     // Handle create new config
                 },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Hotspot Screen
+        composable("hotspot") {
+            HotspotScreen(
                 onBackClick = {
                     navController.popBackStack()
                 }
