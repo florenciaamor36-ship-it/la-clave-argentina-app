@@ -34,14 +34,16 @@ jobs:
         mkdir -p app/src/main/res/xml
         mkdir -p app/src/main/res/mipmap-mdpi
         
-        # Create themes.xml with AppCompat fallback if Material fails
+        # Create themes.xml with AppCompat fallback
         echo '<?xml version="1.0" encoding="utf-8"?><resources><style name="Theme.AeroVPN" parent="Theme.AppCompat.Light.NoActionBar" /></resources>' > app/src/main/res/values/themes.xml
         
         # Create dummy icons
         curl -L https://github.com/google/material-design-icons/raw/master/png/action/lock/materialicons/24dp/1x/baseline_lock_black_24dp.png -o app/src/main/res/mipmap-mdpi/ic_launcher.png
+        cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-mdpi/ic_launcher_round.png
         
         # Create XML resources
         echo '<?xml version="1.0" encoding="utf-8"?><paths><external-path name="my_images" path="Pictures/" /></paths>' > app/src/main/res/xml/file_paths.xml
+        echo '<?xml version="1.0" encoding="utf-8"?><network-security-config><base-config cleartextTrafficPermitted="true"><trust-anchors><certificates src="system" /><certificates src="user" /></trust-anchors></base-config></network-security-config>' > app/src/main/res/xml/network_security_config.xml
         echo '<?xml version="1.0" encoding="utf-8"?><data-extraction-rules><cloud-backup><include domain="file" path="."/></cloud-backup><device-transfer><include domain="file" path="."/></device-transfer></data-extraction-rules>' > app/src/main/res/xml/data_extraction_rules.xml
         echo '<?xml version="1.0" encoding="utf-8"?><full-backup-content></full-backup-content>' > app/src/main/res/xml/backup_rules.xml
 
