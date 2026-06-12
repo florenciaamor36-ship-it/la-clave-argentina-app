@@ -34,10 +34,8 @@ jobs:
         mkdir -p app/src/main/res/xml
         mkdir -p app/src/main/res/mipmap-mdpi
         
-        # Create themes.xml if missing
-        if [ ! -f app/src/main/res/values/themes.xml ]; then
-          echo '<?xml version="1.0" encoding="utf-8"?><resources><style name="Theme.AeroVPN" parent="Theme.MaterialComponents.DayNight.NoActionBar" /></resources>' > app/src/main/res/values/themes.xml
-        fi
+        # Create themes.xml with AppCompat fallback if Material fails
+        echo '<?xml version="1.0" encoding="utf-8"?><resources><style name="Theme.AeroVPN" parent="Theme.AppCompat.Light.NoActionBar" /></resources>' > app/src/main/res/values/themes.xml
         
         # Create dummy icons
         curl -L https://github.com/google/material-design-icons/raw/master/png/action/lock/materialicons/24dp/1x/baseline_lock_black_24dp.png -o app/src/main/res/mipmap-mdpi/ic_launcher.png
@@ -75,6 +73,10 @@ jobs:
         sed -i 's/1.0.20230705/1.0.20230427/g' app/build.gradle
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.8.19'/\/\/ implementation 'com.github.2dust:v2rayNG:1.8.19'/g" app/build.gradle
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.5.16'/\/\/ implementation 'com.github.2dust:v2rayNG:1.5.16'/g" app/build.gradle
+        
+        # Add AppCompat and Material dependencies explicitly
+        sed -i "/dependencies {/a \    implementation 'androidx.appcompat:appcompat:1.6.1'" app/build.gradle
+        sed -i "/dependencies {/a \    implementation 'com.google.android.material:material:1.11.0'" app/build.gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
