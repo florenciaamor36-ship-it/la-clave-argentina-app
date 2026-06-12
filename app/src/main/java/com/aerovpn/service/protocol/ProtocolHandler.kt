@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.StateFlow
  * Each protocol (WireGuard, V2Ray, SSH, Shadowsocks, UDP Tunnel) implements this interface.
  */
 interface ProtocolHandler {
-
+    
     /**
      * Protocol type identifier
      */
     val protocolType: ProtocolType
-
+    
     /**
      * Current connection state
      */
     val connectionState: StateFlow<ConnectionState>
-
+    
     /**
      * Establish VPN connection with the given configuration
      * @param config Protocol-specific configuration
@@ -26,22 +26,22 @@ interface ProtocolHandler {
      * @return true if connection established successfully
      */
     suspend fun connect(config: ProtocolConfig, vpnService: VpnService.Builder): Boolean
-
+    
     /**
      * Gracefully disconnect VPN
      */
     suspend fun disconnect()
-
+    
     /**
      * Check if connection is active
      */
     fun isConnected(): Boolean
-
+    
     /**
      * Get connection statistics (bytes sent/received, duration, etc.)
      */
     fun getStatistics(): ConnectionStatistics
-
+    
     /**
      * Reconnect with exponential backoff
      * @param maxRetries Maximum number of reconnection attempts
@@ -95,7 +95,7 @@ abstract class ProtocolConfig : java.io.Serializable {
     abstract val serverAddress: String
     abstract val serverPort: Int
     abstract val name: String
-
+    
     /**
      * Validate configuration parameters
      * @return true if configuration is valid
@@ -107,26 +107,26 @@ abstract class ProtocolConfig : java.io.Serializable {
  * Base implementation with common functionality
  */
 abstract class BaseProtocolHandler : ProtocolHandler {
-
+    
     @Volatile
     protected var isActive = false
-
+    
     @Volatile
     protected var connectionStartTime = 0L
-
+    
     @Volatile
     protected var bytesSent = 0L
-
+    
     @Volatile
     protected var bytesReceived = 0L
-
+    
     override fun isConnected(): Boolean = isActive
-
+    
     override fun getStatistics(): ConnectionStatistics {
         val duration = if (connectionStartTime > 0) {
             System.currentTimeMillis() - connectionStartTime
         } else 0L
-
+        
         return ConnectionStatistics(
             bytesSent = bytesSent,
             bytesReceived = bytesReceived,
@@ -136,39 +136,39 @@ abstract class BaseProtocolHandler : ProtocolHandler {
             packetsReceived = 0L
         )
     }
-
+    
     override suspend fun reconnect(maxRetries: Int, initialDelayMs: Long) {
         var delay = initialDelayMs
-
+        
         for (attempt in 1..maxRetries) {
             if (!isActive) return
-
+            
             // Emit reconnecting state (implement in concrete class)
             disconnect()
-
+            
             kotlinx.coroutines.delay(delay)
-
+            
             // Try to reconnect (implement in concrete class)
             val reconnected = tryReconnect()
-
+            
             if (reconnected) {
                 return
             }
-
+            
             // Exponential backoff
             delay *= 2
         }
-
+        
         // All retries exhausted
         isActive = false
     }
-
+    
     /**
      * Attempt to reconnect - implement in concrete classes
      * @return true if reconnection successful
      */
     protected abstract suspend fun tryReconnect(): Boolean
-
+    
     /**
      * Update traffic statistics
      * @param sent Bytes sent
