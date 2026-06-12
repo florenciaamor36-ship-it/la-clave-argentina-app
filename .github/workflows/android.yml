@@ -1,0 +1,43 @@
+name: Android Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Fix gradle wrapper jar
+      run: |
+        mkdir -p gradle/wrapper
+        curl -L https://github.com/gradle/gradle/raw/v8.4.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+
+    - name: Fix dependencies
+      run: |
+        # Use available WireGuard version
+        sed -i 's/1.0.20230705/1.0.20230427/g' app/build.gradle
+        # Try a working JitPack version of v2rayNG
+        sed -i 's/1.8.19/1.5.16/g' app/build.gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: la-clave-argentina-debug
+        path: app/build/outputs/apk/debug/*.apk
