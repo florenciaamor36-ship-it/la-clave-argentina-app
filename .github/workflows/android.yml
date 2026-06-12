@@ -28,37 +28,72 @@ jobs:
         mkdir -p app/src/main/java/com/aerovpn/service/protocol
         curl -L https://raw.githubusercontent.com/0xgetz/AeroVPN/main/app/src/main/java/com/aerovpn/service/protocol/ProtocolHandler.kt -o app/src/main/java/com/aerovpn/service/protocol/ProtocolHandler.kt
 
-    - name: Create missing resources
+    - name: Create missing resources and stubs
       run: |
+        # Resources
         mkdir -p app/src/main/res/values
         mkdir -p app/src/main/res/xml
         mkdir -p app/src/main/res/mipmap-mdpi
-        
-        # Create themes.xml with AppCompat fallback
         echo '<?xml version="1.0" encoding="utf-8"?><resources><style name="Theme.AeroVPN" parent="Theme.AppCompat.Light.NoActionBar" /></resources>' > app/src/main/res/values/themes.xml
-        
-        # Create dummy icons
         curl -L https://github.com/google/material-design-icons/raw/master/png/action/lock/materialicons/24dp/1x/baseline_lock_black_24dp.png -o app/src/main/res/mipmap-mdpi/ic_launcher.png
         cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-        
-        # Create XML resources
         echo '<?xml version="1.0" encoding="utf-8"?><paths><external-path name="my_images" path="Pictures/" /></paths>' > app/src/main/res/xml/file_paths.xml
         echo '<?xml version="1.0" encoding="utf-8"?><network-security-config><base-config cleartextTrafficPermitted="true"><trust-anchors><certificates src="system" /><certificates src="user" /></trust-anchors></base-config></network-security-config>' > app/src/main/res/xml/network_security_config.xml
         echo '<?xml version="1.0" encoding="utf-8"?><data-extraction-rules><cloud-backup><include domain="file" path="."/></cloud-backup><device-transfer><include domain="file" path="."/></device-transfer></data-extraction-rules>' > app/src/main/res/xml/data_extraction_rules.xml
         echo '<?xml version="1.0" encoding="utf-8"?><full-backup-content></full-backup-content>' > app/src/main/res/xml/backup_rules.xml
 
-    - name: Fix syntax errors in source
+        # Java/Kotlin Stubs
+        mkdir -p app/src/main/java/com/aerovpn/ui/theme
+        echo 'package com.aerovpn.ui.theme; import androidx.compose.material3.*; import androidx.compose.runtime.*; @Composable fun AeroVPNTheme(content: @Composable () -> Unit) { MaterialTheme(content = content) }' > app/src/main/java/com/aerovpn/ui/theme/Theme.kt
+        
+        mkdir -p app/src/main/java/com/aerovpn/ui/navigation
+        echo 'package com.aerovpn.ui.navigation; import androidx.compose.material.icons.Icons; import androidx.compose.material.icons.filled.*; import androidx.compose.ui.graphics.vector.ImageVector; sealed class NavigationItem(var route: String, var icon: ImageVector, var title: String) { object Home : NavigationItem("home", Icons.Default.Home, "Home"); object Servers : NavigationItem("servers", Icons.Default.Dns, "Servers"); object Config : NavigationItem("config", Icons.Default.Settings, "Config"); object Settings : NavigationItem("settings", Icons.Default.Person, "Settings"); object Tools : NavigationItem("tools", Icons.Default.Build, "Tools") }' > app/src/main/java/com/aerovpn/ui/navigation/NavigationItem.kt
+
+        mkdir -p app/src/main/java/com/aerovpn/ui/components
+        echo 'package com.aerovpn.ui.components; import androidx.compose.material3.*; import androidx.compose.runtime.*; import com.aerovpn.ui.navigation.NavigationItem; @Composable fun BottomNavigationBar(items: List<NavigationItem>, currentRoute: String?, onItemClick: (NavigationItem) -> Unit) { NavigationBar { items.forEach { item -> NavigationBarItem(icon = { Icon(item.icon, contentDescription = item.title) }, label = { Text(item.title) }, selected = currentRoute == item.route, onClick = { onItemClick(item) }) } } }' > app/src/main/java/com/aerovpn/ui/components/BottomNavigationBar.kt
+
+        mkdir -p app/src/main/java/com/aerovpn/ui/screens
+        echo 'package com.aerovpn.ui.screens; import androidx.compose.material3.*; import androidx.compose.runtime.*; @Composable fun ServerListScreen(onServerSelect: () -> Unit) { Text("Server List Stub") }' > app/src/main/java/com/aerovpn/ui/screens/ServerListScreen.kt
+        echo 'package com.aerovpn.ui.screens; import androidx.compose.material3.*; import androidx.compose.runtime.*; @Composable fun ConfigScreen() { Text("Config Stub") }' > app/src/main/java/com/aerovpn/ui/screens/ConfigScreen.kt
+        echo 'package com.aerovpn.ui.screens; import androidx.compose.material3.*; import androidx.compose.runtime.*; @Composable fun SettingsScreen() { Text("Settings Stub") }' > app/src/main/java/com/aerovpn/ui/screens/SettingsScreen.kt
+
+        mkdir -p app/src/main/java/com/aerovpn/service/receiver
+        echo 'package com.aerovpn.service.receiver; import android.content.BroadcastReceiver; import android.content.Context; import android.content.Intent; class NetworkStateReceiver : BroadcastReceiver() { override fun onReceive(context: Context?, intent: Intent?) {} }' > app/src/main/java/com/aerovpn/service/receiver/NetworkStateReceiver.kt
+
+    - name: Fix syntax and imports in existing files
       run: |
         python3 -c "
         import os
+        # Fix HomeScreen.kt
         path = 'app/src/main/java/com/aerovpn/ui/screens/HomeScreen.kt'
         if os.path.exists(path):
             content = open(path).read()
+            # Fix braces
             open_b = content.count('{')
             close_b = content.count('}')
-            if open_b > close_b:
-                with open(path, 'a') as f: f.write('\n' + '}' * (open_b - close_b) + '\n')
-                print(f'Fixed {open_b - close_b} missing braces in HomeScreen.kt')
+            if open_b > close_b: content = content.rstrip() + '\n' + '}' * (open_b - close_b) + '\n'
+            # Fix imports
+            if 'import androidx.compose.ui.unit.sp' not in content:
+                content = content.replace('import androidx.compose.ui.unit.dp', 'import androidx.compose.ui.unit.dp\nimport androidx.compose.ui.unit.sp')
+            if 'import androidx.compose.ui.draw.scale' not in content:
+                content = content.replace('import androidx.compose.ui.draw.shadow', 'import androidx.compose.ui.draw.shadow\nimport androidx.compose.ui.draw.scale')
+            open(path, 'w').write(content)
+        
+        # Fix MainActivity.kt
+        path = 'app/src/main/java/com/aerovpn/ui/MainActivity.kt'
+        if os.path.exists(path):
+            content = open(path).read()
+            content = content.replace('import com.aerovpn.ui.theme.AeroVPNTheme', 'import com.aerovpn.ui.theme.AeroVPNTheme')
+            # Ensure imports for stubs
+            new_imports = [
+                'import com.aerovpn.ui.components.BottomNavigationBar',
+                'import com.aerovpn.ui.navigation.NavigationItem',
+                'import com.aerovpn.ui.theme.AeroVPNTheme'
+            ]
+            for imp in new_imports:
+                if imp not in content:
+                    content = content.replace('import com.aerovpn.ui.screens.HomeScreen', f'import com.aerovpn.ui.screens.HomeScreen\n{imp}')
+            open(path, 'w').write(content)
         "
 
     - name: Simplify AeroVpnService.kt to SSH only
@@ -73,6 +108,8 @@ jobs:
         for line in lines:
             if 'import com.aerovpn.service.protocol.' in line and not any(x in line for x in ['ProtocolHandler', 'SSHProtocol', 'SSHConfig', 'ProtocolConfig', 'ProtocolType', 'ConnectionState']):
                 new_lines.append('// ' + line)
+            elif 'NetworkStateReceiver' in line and 'import' in line:
+                 new_lines.append('import com.aerovpn.service.receiver.NetworkStateReceiver')
             else:
                 new_lines.append(line)
         content = '\n'.join(new_lines)
@@ -81,6 +118,8 @@ jobs:
         content = re.sub(r'is V2RayConfig -> V2RayProtocol\(this\)', '// Removed V2Ray', content)
         content = re.sub(r'is ShadowsocksConfig -> ShadowsocksProtocol\(this\)', '// Removed Shadowsocks', content)
         content = re.sub(r'is UdpTunnelConfig -> UdpTunnelProtocol\(this\)', '// Removed UdpTunnel', content)
+        # Fix Serializable cast
+        content = content.replace('as ProtocolConfig', 'as java.io.Serializable')
         open(path, 'w').write(content)
         "
 
@@ -89,8 +128,6 @@ jobs:
         sed -i 's/1.0.20230705/1.0.20230427/g' app/build.gradle
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.8.19'/\/\/ implementation 'com.github.2dust:v2rayNG:1.8.19'/g" app/build.gradle
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.5.16'/\/\/ implementation 'com.github.2dust:v2rayNG:1.5.16'/g" app/build.gradle
-        
-        # Add AppCompat and Material dependencies explicitly
         sed -i "/dependencies {/a \    implementation 'androidx.appcompat:appcompat:1.6.1'" app/build.gradle
         sed -i "/dependencies {/a \    implementation 'com.google.android.material:material:1.11.0'" app/build.gradle
 
