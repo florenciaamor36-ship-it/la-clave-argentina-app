@@ -28,14 +28,32 @@ jobs:
         mkdir -p app/src/main/java/com/aerovpn/service/protocol
         curl -L https://raw.githubusercontent.com/0xgetz/AeroVPN/main/app/src/main/java/com/aerovpn/service/protocol/ProtocolHandler.kt -o app/src/main/java/com/aerovpn/service/protocol/ProtocolHandler.kt
 
+    - name: Create missing resources
+      run: |
+        mkdir -p app/src/main/res/values
+        mkdir -p app/src/main/res/xml
+        mkdir -p app/src/main/res/mipmap-mdpi
+        
+        # Create themes.xml if missing
+        if [ ! -f app/src/main/res/values/themes.xml ]; then
+          echo '<?xml version="1.0" encoding="utf-8"?><resources><style name="Theme.AeroVPN" parent="Theme.MaterialComponents.DayNight.NoActionBar" /></resources>' > app/src/main/res/values/themes.xml
+        fi
+        
+        # Create dummy icons
+        curl -L https://github.com/google/material-design-icons/raw/master/png/action/lock/materialicons/24dp/1x/baseline_lock_black_24dp.png -o app/src/main/res/mipmap-mdpi/ic_launcher.png
+        
+        # Create XML resources
+        echo '<?xml version="1.0" encoding="utf-8"?><paths><external-path name="my_images" path="Pictures/" /></paths>' > app/src/main/res/xml/file_paths.xml
+        echo '<?xml version="1.0" encoding="utf-8"?><data-extraction-rules><cloud-backup><include domain="file" path="."/></cloud-backup><device-transfer><include domain="file" path="."/></device-transfer></data-extraction-rules>' > app/src/main/res/xml/data_extraction_rules.xml
+        echo '<?xml version="1.0" encoding="utf-8"?><full-backup-content></full-backup-content>' > app/src/main/res/xml/backup_rules.xml
+
     - name: Simplify AeroVpnService.kt to SSH only
       run: |
         python3 -c "
         import os
         path = 'app/src/main/java/com/aerovpn/service/AeroVpnService.kt'
+        if not os.path.exists(path): exit(0)
         content = open(path).read()
-        
-        # Remove unused protocol imports
         lines = content.split('\n')
         new_lines = []
         for line in lines:
@@ -44,22 +62,17 @@ jobs:
             else:
                 new_lines.append(line)
         content = '\n'.join(new_lines)
-        
-        # Simplify getProtocolHandler
         import re
         content = re.sub(r'is WireGuardConfig -> WireGuardProtocol\(\)', '// Removed WireGuard', content)
         content = re.sub(r'is V2RayConfig -> V2RayProtocol\(this\)', '// Removed V2Ray', content)
         content = re.sub(r'is ShadowsocksConfig -> ShadowsocksProtocol\(this\)', '// Removed Shadowsocks', content)
         content = re.sub(r'is UdpTunnelConfig -> UdpTunnelProtocol\(this\)', '// Removed UdpTunnel', content)
-        
         open(path, 'w').write(content)
         "
 
     - name: Fix app build.gradle dependencies
       run: |
-        # Use available WireGuard version
         sed -i 's/1.0.20230705/1.0.20230427/g' app/build.gradle
-        # Comment out problematic dependencies
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.8.19'/\/\/ implementation 'com.github.2dust:v2rayNG:1.8.19'/g" app/build.gradle
         sed -i "s/implementation 'com.github.2dust:v2rayNG:1.5.16'/\/\/ implementation 'com.github.2dust:v2rayNG:1.5.16'/g" app/build.gradle
 
