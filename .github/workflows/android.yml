@@ -47,6 +47,20 @@ jobs:
         echo '<?xml version="1.0" encoding="utf-8"?><data-extraction-rules><cloud-backup><include domain="file" path="."/></cloud-backup><device-transfer><include domain="file" path="."/></device-transfer></data-extraction-rules>' > app/src/main/res/xml/data_extraction_rules.xml
         echo '<?xml version="1.0" encoding="utf-8"?><full-backup-content></full-backup-content>' > app/src/main/res/xml/backup_rules.xml
 
+    - name: Fix syntax errors in source
+      run: |
+        python3 -c "
+        import os
+        path = 'app/src/main/java/com/aerovpn/ui/screens/HomeScreen.kt'
+        if os.path.exists(path):
+            content = open(path).read()
+            open_b = content.count('{')
+            close_b = content.count('}')
+            if open_b > close_b:
+                with open(path, 'a') as f: f.write('\n' + '}' * (open_b - close_b) + '\n')
+                print(f'Fixed {open_b - close_b} missing braces in HomeScreen.kt')
+        "
+
     - name: Simplify AeroVpnService.kt to SSH only
       run: |
         python3 -c "
