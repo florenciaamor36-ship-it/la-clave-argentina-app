@@ -1,83 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">La Clave Argentina Conexión Total</string>
-    <string name="app_description">Conexión Total - Internet Ilimitado</string>
-    
-    <!-- Navigation -->
-    <string name="nav_home">Inicio</string>
-    <string name="nav_servers">Servidores</string>
-    <string name="nav_tools">Herramientas</string>
-    <string name="nav_configs">Configs</string>
-    <string name="nav_settings">Ajustes</string>
-    
-    <!-- Home Screen -->
-    <string name="home_connect">CONECTAR</string>
-    <string name="home_disconnect">DESCONECTAR</string>
-    <string name="home_quick_connect">Conexión Rápida</string>
-    <string name="home_protocol">Protocolo</string>
-    <string name="home_connection_status">Estado de Conexión</string>
-    
-    <!-- VPN Status -->
-    <string name="status_connected">Conectado</string>
+    <string name="app_name">LA CLAVE ARGENTINA</string>
+    <string name="tab_home">Inicio</string>
+    <string name="tab_logs">Registro</string>
+    <string name="tab_config">Ajustes</string>
+    <string name="btn_connect">CONECTAR</string>
+    <string name="btn_disconnect">DESCONECTAR</string>
+    <string name="btn_connecting">CONECTANDO...</string>
     <string name="status_disconnected">Desconectado</string>
-    <string name="status_connecting">Conectando…</string>
+    <string name="status_connected">Conectado y Seguro</string>
+    <string name="status_connecting">Estableciendo Túnel SSH...</string>
+    <string name="status_authenticating">Autenticando credenciales...</string>
     <string name="status_error">Error de Conexión</string>
-    
-    <!-- Custom -->
-    <string name="splash_greeting">La Clave Argentina Conexión Total</string>
-    <string name="copy_hwid">Copiar HWID</string>
-    <string name="hwid_copied">HWID copiado al portapapeles</string>
-    
-    <!-- Server Selection -->
-    <string name="server_select">Seleccionar Servidor</string>
-    <string name="server_country">País</string>
-    <string name="server_city">Ciudad</string>
-    <string name="server_ping">Latencia</string>
-    <string name="server_speed">Velocidad</string>
-    
-    <!-- Protocols -->
-    <string name="protocol_wireguard">WireGuard</string>
-    <string name="protocol_v2ray">V2Ray</string>
-    <string name="protocol_ssh">SSH</string>
-    <string name="protocol_shadowsocks">Shadowsocks</string>
-    
-    <!-- Tools -->
-    <string name="tool_ip_check">Chequear IP</string>
-    <string name="tool_dns_test">Test DNS</string>
-    <string name="tool_speed_test">Test de Velocidad</string>
-    <string name="tool_payload">Generador de Payload</string>
-    
-    <!-- Settings -->
-    <string name="settings_general">General</string>
-    <string name="settings_notifications">Notificaciones</string>
-    <string name="settings_auto_connect">Auto Conectar</string>
-    <string name="settings_kill_switch">Kill Switch</string>
-    <string name="settings_about">Acerca de</string>
-    <string name="settings_version">Versión</string>
-    
-    <!-- Notifications -->
-    <string name="notification_channel_vpn">VPN Service</string>
-    <string name="notification_vpn_active">VPN Active</string>
-    <string name="notification_vpn_connected">Connected to %1$s</string>
-    
-    <!-- Errors -->
-    <string name="error_no_internet">No internet connection</string>
-    <string name="error_vpn_permission">VPN permission denied</string>
-    <string name="error_server_unreachable">Server unreachable</string>
-    
-    <!-- Features -->
-    <string name="feature_tethering">Compartir Internet (Hotspot)</string>
-    <string name="feature_tv_mode">Modo Smart TV</string>
-    <string name="tethering_status">Estado de Anclaje: %1$s</string>
-    <string name="tethering_active">Activo - Compartiendo</string>
-    <string name="tethering_inactive">Inactivo</string>
-    
-    <!-- Actions -->
-    <string name="action_import">Import</string>
-    <string name="action_export">Export</string>
-    <string name="action_delete">Delete</string>
-    <string name="action_edit">Edit</string>
-    <string name="action_save">Save</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="action_ok">OK</string>
+    <string name="log_copied">Registro copiado al portapapeles</string>
+    <string name="log_cleared">Registros limpiados</string>
 </resources>
+

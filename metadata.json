@@ -1,0 +1,7 @@
+{
+  "name": "TIENDA SSH",
+  "description": "Cliente de conexión SSH, VPN y túnel HTTP personalizado con métricas en vivo y visor de registros.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
